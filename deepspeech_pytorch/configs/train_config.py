@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional
 
 from hydra_configs.pytorch_lightning.callbacks import ModelCheckpointConf
 from hydra_configs.pytorch_lightning.trainer import TrainerConf
@@ -38,6 +38,7 @@ class DataConfig:
     val_path: str = 'data/val_manifest.csv'
     batch_size: int = 64  # Batch size for training
     num_workers: int = 4  # Number of workers used in data-loading
+    pin_memory: bool = True
     labels_path: str = 'labels.json'  # Contains tokens for model output
     spect: SpectConfig = SpectConfig()
     augmentation: AugmentationConfig = AugmentationConfig()
@@ -80,6 +81,16 @@ class GCSCheckpointConfig(ModelCheckpointConf):
 
 
 @dataclass
+class LogConfig:
+    use_wandb: bool = False
+    project: Optional[str] = None
+    id: Optional[str] = None
+    name: Optional[str] = None
+    entity: Optional[str] = None
+    log_model: bool = True
+
+
+@dataclass
 class DeepSpeechTrainerConf(TrainerConf):
     callbacks: Any = MISSING
 
@@ -91,6 +102,7 @@ class DeepSpeechConfig:
     model: Any = MISSING
     checkpoint: ModelCheckpointConf = MISSING
     trainer: DeepSpeechTrainerConf = DeepSpeechTrainerConf()
+    log: LogConfig = LogConfig()
     data: DataConfig = DataConfig()
     augmentation: AugmentationConfig = AugmentationConfig()
     seed: int = 123456  # Seed for generators

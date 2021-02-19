@@ -8,6 +8,8 @@ from deepspeech_pytorch.model import DeepSpeech
 from hydra.utils import to_absolute_path
 from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
+from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
+from pytorch_lightning import Trainer
 
 
 def train(cfg: DeepSpeechConfig):
@@ -34,7 +36,7 @@ def train(cfg: DeepSpeechConfig):
         labels=labels,
         data_cfg=cfg.data,
         normalize=True,
-        is_distributed=cfg.trainer.gpus > 1
+        is_distributed=cfg.trainer.gpus is not None and cfg.trainer.gpus > 1
     )
 
     model = DeepSpeech(
@@ -45,9 +47,20 @@ def train(cfg: DeepSpeechConfig):
         spect_cfg=cfg.data.spect
     )
 
+    logger = [TensorBoardLogger(save_dir="deepspeech_logs", name='lightning_logs')]
+    if cfg.log.use_wandb:
+        logger.append(WandbLogger(
+            project=cfg.log.project,
+            entity=cfg.log.entity,
+            name=cfg.log.name,
+            id=cfg.log.id,
+            log_model=cfg.log.log_model
+        ))
+
     trainer = hydra.utils.instantiate(
         config=cfg.trainer,
         replace_sampler_ddp=False,
         callbacks=[checkpoint_callback] if cfg.trainer.checkpoint_callback else None,
+        logger=logger
     )
     trainer.fit(model, data_loader)
