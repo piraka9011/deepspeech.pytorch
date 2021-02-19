@@ -102,6 +102,11 @@ ENV/
 
 # deepspeech.pytorch-specific dirs
 models/
+data/*train
+data/*test
+data/*val
 data/*.csv
+data/*_manifest.json
 data/*_dataset/
 .vscode/
+outputs

@@ -1,5 +1,6 @@
 import pytorch_lightning as pl
 from hydra.utils import to_absolute_path
+import torch
 
 from deepspeech_pytorch.configs.train_config import DataConfig
 from deepspeech_pytorch.loader.data_loader import SpectrogramDataset, DSRandomSampler, AudioDataLoader, \
@@ -38,7 +39,8 @@ class DeepSpeechDataModule(pl.LightningDataModule):
         train_loader = AudioDataLoader(
             dataset=train_dataset,
             num_workers=self.data_cfg.num_workers,
-            batch_sampler=train_sampler
+            batch_sampler=train_sampler,
+            pin_memory=self.data_cfg.pin_memory
         )
         return train_loader
 
