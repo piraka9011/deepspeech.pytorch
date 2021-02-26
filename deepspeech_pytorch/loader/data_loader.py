@@ -162,9 +162,8 @@ class SpectrogramDataset(Dataset, SpectrogramParser):
 
     def __getitem__(self, index):
         sample = self.ids[index]
-        audio_path, transcript_path = sample[0], sample[1]
+        audio_path, transcript = sample[0], sample[1]
         spect = self.parse_audio(audio_path)
-        transcript = self.parse_transcript(transcript_path)
         return spect, transcript
 
     def _parse_input(self, input_path):
@@ -172,7 +171,7 @@ class SpectrogramDataset(Dataset, SpectrogramParser):
         if os.path.isdir(input_path):
             for wav_path in Path(input_path).rglob('*.wav'):
                 transcript_path = str(wav_path).replace('/wav/', '/txt/').replace('.wav', '.txt')
-                ids.append((wav_path, transcript_path))
+                ids.append((wav_path, self.parse_transcript(transcript_path)))
         else:
             # Assume it is a manifest file
             with open(input_path) as f:
@@ -180,7 +179,7 @@ class SpectrogramDataset(Dataset, SpectrogramParser):
             for sample in manifest['samples']:
                 wav_path = os.path.join(manifest['root_path'], sample['wav_path'])
                 transcript_path = os.path.join(manifest['root_path'], sample['transcript_path'])
-                ids.append((wav_path, transcript_path))
+                ids.append((wav_path, self.parse_transcript(transcript_path)))
         return ids
 
     def parse_transcript(self, transcript_path):
