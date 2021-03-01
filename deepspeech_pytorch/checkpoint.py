@@ -80,8 +80,8 @@ class GCSCheckpointHandler(CheckpointHandler):
         # make paths
         if trainer.is_global_zero:
             tqdm.write(f"Saving model to {filepath}")
-            trainer.save_checkpoint(filepath)
-            self._save_file_to_gcs(filepath, self.save_weights_only)
+            trainer.save_checkpoint(filepath, self.save_weights_only)
+            self._save_file_to_gcs(filepath)
 
     def _save_file_to_gcs(self, model_path):
         tqdm.write(f"Saving model to gs://{self.gcs_bucket}/{self.gcs_save_folder}/{self.filename}{self.FILE_EXTENSION}")
